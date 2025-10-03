@@ -81,11 +81,9 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import AppMessage from "@/components/AppMessage.vue";
-import {
-  registerUser,
-  loginUser,
-  getCurrentUser,
-} from "@/services/authService";
+import { registerUser, loginUser } from "@/services/authService";
+
+import { getCurrentUser } from "@/services/userService";
 import { useAuthStore } from "@/stores/authStore";
 
 const router = useRouter();

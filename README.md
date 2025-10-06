@@ -1,79 +1,146 @@
-# Vuetify (Default)
+# Postulate Frontend
 
-This is the official scaffolding tool for Vuetify, designed to give you a head start in building your new Vuetify application. It sets up a base template with all the necessary configurations and standard directory structure, enabling you to begin development without the hassle of setting up the project from scratch.
+Este es el frontend del sistema **Postulate**, una plataforma para la gestión de vacantes y postulaciones.  
+Está desarrollada con **Vue.js** y **Vuetify**, ofreciendo una interfaz moderna, responsiva y fácil de usar.  
+El sistema permite a los usuarios registrarse, postular a vacantes, y a los administradores gestionar ofertas laborales de forma eficiente.
 
-## ❗️ Important Links
+## 🚀 Tecnologías utilizadas
 
-- 📄 [Docs](https://vuetifyjs.com/)
-- 🚨 [Issues](https://issues.vuetifyjs.com/)
-- 🏬 [Store](https://store.vuetifyjs.com/)
-- 🎮 [Playground](https://play.vuetifyjs.com/)
-- 💬 [Discord](https://community.vuetifyjs.com)
+Este proyecto está construido con las siguientes tecnologías modernas:
 
-## 💿 Install
+- [Vue.js 3](https://vuejs.org/) – Framework progresivo para construir interfaces de usuario.
+- [Vuetify 3](https://vuetifyjs.com/) – Biblioteca de componentes UI basada en Material Design.
+- [Vite](https://vitejs.dev/) – Herramienta de desarrollo rápida para proyectos frontend.
+- [Pinia](https://pinia.vuejs.org/) – Librería para el manejo de estado en Vue.
+- [Vue Router](https://router.vuejs.org/) – Enrutador oficial para Vue.js.
+- [Axios](https://axios-http.com/) – Cliente HTTP para realizar peticiones al backend.
+- Chart.js – Librería para crear gráficos interactivos y visualizaciones de datos.
 
-Set up your project using your preferred package manager. Use the corresponding command to install the dependencies:
+## 📦 Instalación
 
-| Package Manager                                                | Command        |
-|---------------------------------------------------------------|----------------|
-| [yarn](https://yarnpkg.com/getting-started)                   | `yarn install` |
-| [npm](https://docs.npmjs.com/cli/v7/commands/npm-install)     | `npm install`  |
-| [pnpm](https://pnpm.io/installation)                          | `pnpm install` |
-| [bun](https://bun.sh/#getting-started)                        | `bun install`  |
+Sigue estos pasos para instalar y ejecutar el proyecto en tu entorno local:
 
-After completing the installation, your environment is ready for Vuetify development.
-
-## ✨ Features
-
-- 🖼️ **Optimized Front-End Stack**: Leverage the latest Vue 3 and Vuetify 3 for a modern, reactive UI development experience. [Vue 3](https://v3.vuejs.org/) | [Vuetify 3](https://vuetifyjs.com/en/)
-- 🗃️ **State Management**: Integrated with [Pinia](https://pinia.vuejs.org/), the intuitive, modular state management solution for Vue.
-- 🚦 **Routing and Layouts**: Utilizes Vue Router for SPA navigation and vite-plugin-vue-layouts for organizing Vue file layouts. [Vue Router](https://router.vuejs.org/) | [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts)
-- ⚡ **Next-Gen Tooling**: Powered by Vite, experience fast cold starts and instant HMR (Hot Module Replacement). [Vite](https://vitejs.dev/)
-- 🧩 **Automated Component Importing**: Streamline your workflow with unplugin-vue-components, automatically importing components as you use them. [unplugin-vue-components](https://github.com/antfu/unplugin-vue-components)
-
-These features are curated to provide a seamless development experience from setup to deployment, ensuring that your Vuetify application is both powerful and maintainable.
-
-## 💡 Usage
-
-This section covers how to start the development server and build your project for production.
-
-### Starting the Development Server
-
-To start the development server with hot-reload, run the following command. The server will be accessible at [http://localhost:3000](http://localhost:3000):
+1. Clona el repositorio:
 
 ```bash
-yarn dev
+   git clone https://github.com/StvenCristian/postulate-fronted.git
 ```
-
-(Repeat for npm, pnpm, and bun with respective commands.)
-
-> Add NODE_OPTIONS='--no-warnings' to suppress the JSON import warnings that happen as part of the Vuetify import mapping. If you are on Node [v21.3.0](https://nodejs.org/en/blog/release/v21.3.0) or higher, you can change this to NODE_OPTIONS='--disable-warning=5401'. If you don't mind the warning, you can remove this from your package.json dev script.
-
-### Building for Production
-
-To build your project for production, use:
 
 ```bash
-yarn build
+   cd postulate-fronted
 ```
 
-(Repeat for npm, pnpm, and bun with respective commands.)
+2. Instala las dependencias:
 
-Once the build process is completed, your application will be ready for deployment in a production environment.
+```bash
+   npm install
+```
 
-## 💪 Support Vuetify Development
+3. Ejecuta el servidor de desarrollo:
 
-This project is built with [Vuetify](https://vuetifyjs.com/en/), a UI Library with a comprehensive collection of Vue components. Vuetify is an MIT licensed Open Source project that has been made possible due to the generous contributions by our [sponsors and backers](https://vuetifyjs.com/introduction/sponsors-and-backers/). If you are interested in supporting this project, please consider:
+```bash
+   npm run dev
+```
 
-- [Requesting Enterprise Support](https://support.vuetifyjs.com/)
-- [Sponsoring John on Github](https://github.com/users/johnleider/sponsorship)
-- [Sponsoring Kael on Github](https://github.com/users/kaelwd/sponsorship)
-- [Supporting the team on Open Collective](https://opencollective.com/vuetify)
-- [Becoming a sponsor on Patreon](https://www.patreon.com/vuetify)
-- [Becoming a subscriber on Tidelift](https://tidelift.com/subscription/npm/vuetify)
-- [Making a one-time donation with Paypal](https://paypal.me/vuetify)
+4. Accede a la aplicación en `http://localhost:5173` (o el puerto que indique la consola)
 
-## 📑 License
-[MIT](http://opensource.org/licenses/MIT)
+## ⚙️ Configuración
 
-Copyright (c) 2016-present Vuetify, LLC
+La configuración de la URL base del backend se realiza mediante un archivo dedicado en el proyecto.
+Este proyecto define la URL directamente en el archivo: src/config/api.config.js
+Dentro de este archivo se encuentra la constante `API_BASE_URL`, que debe apuntar a la URL de tu backend. Ejemplo:
+
+```js
+export const API_BASE_URL = "https://tu-backend-url/api";
+```
+
+## 🧩 Estructura del proyecto
+
+La estructura del proyecto está organizada para mantener una arquitectura clara y escalable. A continuación se muestra una vista general de las carpetas principales:
+
+- src/assets/: Archivos estáticos como imágenes y estilos.
+- src/components/: Componentes reutilizables.
+- src/views/: Vistas principales como Login, Home, etc.
+- src/router/: Configuración de rutas con Vue Router.
+- src/store/: Manejo de estado con Pinia.
+- src/services/: Lógica de conexión con la API.
+- src/config/: Configuración de la URL base del backend.
+- src/utils/: Funciones auxiliares.
+- src/App.vue: Componente raíz de la aplicación.
+
+Esta estructura facilita el mantenimiento del código y la incorporación de nuevas funcionalidades.
+
+## 🔐 Autenticación
+
+La autenticación en el sistema se realiza mediante **JSON Web Tokens (JWT)**.
+
+- Al iniciar sesión, el backend genera un token JWT que se almacena en el `localStorage`.
+- Este token se incluye automáticamente en cada petición HTTP mediante Axios, permitiendo validar el acceso a rutas protegidas.
+- El sistema también verifica el rol del usuario (por ejemplo, `ADMIN`) para controlar el acceso a secciones específicas como el panel de administración.
+
+Esta implementación garantiza una autenticación segura y una gestión eficiente de permisos.
+
+## 🛠️ Funcionalidades principales
+
+El sistema Postulate ofrece las siguientes funcionalidades clave:
+
+- Inicio de sesión con validación de credenciales y rol de usuario.
+- Registro de usuarios con asignación automática del rol "Postulante".
+- Panel de administración para gestionar vacantes disponibles.
+- Expiración automática de vacantes según su fecha de vencimiento.
+- Visualización de postulaciones realizadas por los usuarios.
+- Interfaz moderna, responsiva y accesible gracias a Vuetify.
+- Visualización de datos mediante gráficos con Chart.js.
+
+## ☁️ Despliegue en Firebase
+
+Este proyecto está desplegado en **Firebase Hosting**, una plataforma rápida y confiable para aplicaciones web modernas.
+
+### Pasos para el despliegue:
+
+1. Compila el proyecto:
+
+```bash
+   npm run buid
+```
+
+2. Instala la CLI de Firebase si no la tienes:
+
+```bash
+   npm install -g firebase-tools
+```
+
+3. Inicia sesión en Firebase:
+
+```bash
+   firebase login
+```
+
+4. Inicializa el proyecto (solo la primera vez):
+
+```bash
+   firebase init
+```
+
+- Selecciona Hosting.
+- Usa dist como carpeta pública.
+
+4. Despliega:
+
+```bash
+   firebase deploy
+```
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia **MIT**, lo que permite su uso, modificación y distribución con pocas restricciones.
+
+## 🙌 Autor
+
+Desarrollado por **Cristian Aldair Alcantara Anton**
+
+- GitHub: StvenCristian
+- Ubicación: Lima, Perú
+- Proyecto: postulate-fronted
+
+Este proyecto forma parte de una solución completa para la gestión de vacantes y postulaciones, con enfoque en buenas prácticas, escalabilidad y experiencia de usuario.

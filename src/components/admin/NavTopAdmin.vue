@@ -1,26 +1,51 @@
 <template>
   <v-app-bar color="primary" dark flat>
     <v-container>
-      <v-row align="center" justify="space-between">
-        <v-col class="d-flex align-center" cols="auto">
+      <v-row align="center" justify="space-between" class="flex-wrap">
+        <v-col cols="auto" class="d-md-none">
+          <v-menu>
+            <template #activator="{ props }">
+              <v-app-bar-nav-icon v-bind="props" />
+            </template>
+            <v-list>
+              <v-list-item @click="goTo('/admin/home')">
+                <v-list-item-title>Home</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="goTo('/admin/vacantes')">
+                <v-list-item-title>Vacantes</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="toggleTheme">
+                <v-list-item-title>Cambiar tema </v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>
+                  {{ authStore.username }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="logout">
+                <v-list-item-title> Cerrar sesión </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-col>
+        <v-col cols="auto" class="d-none d-md-flex align-center">
           <v-btn
             variant="text"
             color="white"
             class="me-2"
             @click="goTo('/admin/home')"
+            >Home</v-btn
           >
-            Home
-          </v-btn>
           <v-btn
             variant="text"
             color="white"
             class="me-2"
             @click="goTo('/admin/vacantes')"
+            >Vacantes</v-btn
           >
-            Vacantes
-          </v-btn>
         </v-col>
-        <v-col class="d-flex align-center justify-end" cols="auto">
+
+        <v-col cols="auto" class="d-none d-md-flex align-center justify-end">
           <v-btn icon @click="toggleTheme" class="me-4" color="white">
             <v-icon>
               {{
@@ -32,11 +57,11 @@
           </v-btn>
 
           <v-icon class="me-2">mdi-account</v-icon>
-          <span>{{ authStore.username }}</span>
+          <span class="me-2">{{ authStore.username }}</span>
 
-          <v-btn variant="outlined" color="white" class="ms-4" @click="logout">
-            Cerrar sesión
-          </v-btn>
+          <v-btn variant="outlined" color="white" class="ms-2" @click="logout"
+            >Cerrar sesión</v-btn
+          >
         </v-col>
       </v-row>
     </v-container>

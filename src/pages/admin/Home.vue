@@ -14,37 +14,47 @@ meta:
       :type="messageType"
       @closed="message = ''"
     />
+
     <v-card class="mb-6 pa-4">
       <v-card-title class="text-h5">
         Bienvenido, {{ authStore.username }}
       </v-card-title>
     </v-card>
-    <h2 class="text-center">DASHBOARD PRINCIPAL</h2>
 
-    <v-divider :thickness="4"></v-divider>
+    <h2 class="text-center text-h6 text-md-h4">DASHBOARD PRINCIPAL</h2>
+
+    <v-divider :thickness="4" class="my-4" />
+
     <v-row>
-      <v-col cols="12" md="4">
-        <PieChart
-          v-if="chartDashboardVacante"
-          :data="chartDashboardVacante.data"
-          :options="chartDashboardVacante.options"
-        />
+      <v-col cols="12" sm="6" md="4">
+        <div style="height: 300px">
+          <PieChart
+            v-if="chartDashboardVacante"
+            :data="chartDashboardVacante.data"
+            :options="chartDashboardVacante.options"
+          />
+        </div>
       </v-col>
-      <v-col cols="12" md="4">
-        <BarChart
-          v-if="chartDashboardPostulaciones"
-          :data="chartDashboardPostulaciones.data"
-          :options="chartDashboardPostulaciones.options"
-        />
+      <v-col cols="12" sm="6" md="4">
+        <div style="height: 300px">
+          <BarChart
+            v-if="chartDashboardPostulaciones"
+            :data="chartDashboardPostulaciones.data"
+            :options="chartDashboardPostulaciones.options"
+          />
+        </div>
       </v-col>
-      <v-col cols="12" md="4">
-        <BarChart
-          v-if="chartDashboardVisualizaciones"
-          :data="chartDashboardVisualizaciones.data"
-          :options="chartDashboardVisualizaciones.options"
-        />
+      <v-col cols="12" sm="6" md="4">
+        <div style="height: 300px">
+          <BarChart
+            v-if="chartDashboardVisualizaciones"
+            :data="chartDashboardVisualizaciones.data"
+            :options="chartDashboardVisualizaciones.options"
+          />
+        </div>
       </v-col>
     </v-row>
+
     <v-row class="my-4" justify="center">
       <v-btn color="primary" @click="goToVacantes">
         Ir al Maestro de Vacantes

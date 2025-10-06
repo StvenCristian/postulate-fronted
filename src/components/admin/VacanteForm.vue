@@ -1,5 +1,10 @@
 <template>
-  <AppMessage v-if="errorMessage" :message="errorMessage" type="error" />
+  <AppMessage
+    v-if="message"
+    :message="message"
+    :type="messageType"
+    @closed="message = ''"
+  />
   <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
     <v-text-field
       v-model="form.titulo"
@@ -35,23 +40,45 @@
     />
     <v-select
       v-if="form.id > 0"
+      variant="solo-filled"
       v-model="form.estado"
       label="Estado"
       :items="['Activa', 'Vencida']"
+      disabled
     ></v-select>
-    <v-btn type="submit" color="primary">
-      {{ vacante ? "Actualizar" : "Registrar" }}
-    </v-btn>
+
+    <v-col cols="12" class="text-center">
+      <v-btn
+        type="submit"
+        color="primary"
+        :disabled="form.estado === 'Expirada'"
+        class="ma-2"
+      >
+        {{ vacante ? "Actualizar" : "Registrar" }}
+      </v-btn>
+
+      <v-btn
+        v-if="vacante"
+        color="error"
+        @click="handleFinalizar"
+        :disabled="form.estado === 'Expirada'"
+        class="ma-2"
+      >
+        Finalizar
+      </v-btn>
+    </v-col>
   </v-form>
 </template>
 
 <script setup>
 import { ref, watch } from "vue";
-import { createVacante, updateVacante } from "@/services/vacanteService";
-import AppMessage from "@/components/AppMessage.vue";
-import { nextTick } from "vue";
+import {
+  createVacante,
+  updateVacante,
+  expireVacante,
+} from "@/services/vacanteService";
+import AppMessage from "@/components/shared/AppMessage.vue";
 import { useAuthStore } from "@/stores/authStore";
-import { getCurrentUser } from "@/services/userService";
 
 const authStore = useAuthStore();
 
@@ -60,7 +87,18 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["submitted"]);
-const errorMessage = ref("");
+
+const message = ref("");
+const messageType = ref("info");
+const showMessage = (msg, type = "info", duration = 3000) => {
+  message.value = msg;
+  messageType.value = type;
+
+  setTimeout(() => {
+    message.value = "";
+    messageType.value = "info";
+  }, duration);
+};
 
 const formRef = ref(null);
 const formValid = ref(false);
@@ -106,64 +144,48 @@ watch(
 );
 
 const handleSubmit = async () => {
-  await cleanMessage();
-
   const isValid = await formRef.value?.validate();
   if (!isValid) {
-    errorMessage.value = "Por favor completa los campos obligatorios.";
+    showMessage("Por favor completa los campos obligatorios.", "error");
     return;
   }
 
   try {
-    let resp;
+    const isEditing = !!props.vacante;
 
-    if (props.vacante) {
-      resp = await updateVacante(props.vacante.id, form.value);
-    } else {
-      resp = await createVacante(form.value);
-    }
-    console.log(resp);
+    const resp = isEditing
+      ? await updateVacante(form.value)
+      : await createVacante(form.value);
+
     if (!resp?.isSuccess) {
-      errorMessage.value = resp?.message || "Error desconocido.";
+      showMessage(resp?.message, "error");
       return;
     }
 
     emit("submitted");
   } catch (err) {
-    errorMessage.value =
-      err.response?.data?.message || "Error al enviar el formulario.";
+    showMessage(err.response?.data?.message, "error");
   }
 };
 
-const cleanMessage = async () => {
-  errorMessage.value = "";
-  await nextTick();
-};
-
-const validateAccess = async () => {
-  if (!authStore.token) {
-    router.push("/login");
-    return false;
+const handleFinalizar = async () => {
+  const isValid = await formRef.value?.validate();
+  if (!isValid) {
+    showMessage("Por favor completa los campos obligatorios.", "error");
+    return;
   }
 
   try {
-    const res = await getCurrentUser();
-    authStore.username = res.data.username;
-    authStore.roles = res.data.roles;
+    const resp = await expireVacante(form.value);
 
-    if (!authStore.roles.includes("ADMIN")) {
-      router.push("/unauthorized");
-      return false;
+    if (!resp?.isSuccess) {
+      showMessage(resp?.message, "error");
+      return;
     }
 
-    return true;
+    emit("submitted");
   } catch (err) {
-    router.push("/login");
-    return false;
+    showMessage(err.response?.data?.message, "error");
   }
 };
-
-onMounted(async () => {
-  const isValid = await validateAccess();
-});
 </script>

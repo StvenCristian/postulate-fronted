@@ -21,6 +21,7 @@ declare module 'vue-router/auto-routes' {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/admin/Home': RouteRecordInfo<'/admin/Home', '/admin/Home', Record<never, never>, Record<never, never>>,
     '/admin/Postulaciones': RouteRecordInfo<'/admin/Postulaciones', '/admin/Postulaciones', Record<never, never>, Record<never, never>>,
+    '/admin/Vacantes': RouteRecordInfo<'/admin/Vacantes', '/admin/Vacantes', Record<never, never>, Record<never, never>>,
     '/Login': RouteRecordInfo<'/Login', '/Login', Record<never, never>, Record<never, never>>,
     '/postulante/Home': RouteRecordInfo<'/postulante/Home', '/postulante/Home', Record<never, never>, Record<never, never>>,
     '/Register': RouteRecordInfo<'/Register', '/Register', Record<never, never>, Record<never, never>>,
@@ -48,6 +49,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/admin/Postulaciones.vue': {
       routes: '/admin/Postulaciones'
+      views: never
+    }
+    'src/pages/admin/Vacantes.vue': {
+      routes: '/admin/Vacantes'
       views: never
     }
     'src/pages/Login.vue': {

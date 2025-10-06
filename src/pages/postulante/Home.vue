@@ -1,53 +1,132 @@
+<route lang="yaml">
+meta:
+  layout: postulante
+  requiresAuth: true
+  roles:
+    - USER_POST
+</route>
+
 <template>
   <v-container>
-    <NavTop />
+    <v-dialog v-model="dialog" max-width="900px" persistent>
+      <v-card class="rounded-lg elevation-4">
+        <v-card-title class="bg-warning text-white">
+          <v-icon class="mr-2">mdi-briefcase</v-icon>
+          Postulación a Vacante
+        </v-card-title>
 
-    <v-dialog v-model="dialog" max-width="600px" persistent>
-      <v-card>
-        <!-- ✅ Mensaje general -->
-        <AppMessage
-          v-if="message"
-          :message="message"
-          :type="messageType"
-          @closed="message = ''"
-        />
-
-        <v-card-title class="text-h6">Postulación a Vacante</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="postulacionForm.telefonoOpc"
-            label="Teléfono opcional"
-            placeholder="Ej. 987654321"
-          />
-          <v-textarea
-            v-model="postulacionForm.comentarioOpc"
-            label="Comentario opcional"
-            rows="3"
-            auto-grow
-          />
-          <v-file-input
-            v-model="postulacionForm.cvFile"
-            label="Subir CV"
-            accept=".pdf,.doc,.docx"
-            show-size
-            prepend-icon="mdi-upload"
-          />
+        <v-divider class="mx-4 my-2" />
+        <v-card-text v-if="vacanteSeleccionada">
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-icon class="mr-1" size="18">mdi-briefcase-outline</v-icon>
+              <strong>Título:</strong> {{ vacanteSeleccionada.titulo }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-icon class="mr-1" size="18">mdi-map-marker</v-icon>
+              <strong>Ubicación:</strong> {{ vacanteSeleccionada.ubicacion }}
+            </v-col>
+            <v-col cols="12">
+              <v-icon class="mr-1" size="18">mdi-text</v-icon>
+              <strong>Descripción:</strong>
+              {{ vacanteSeleccionada.descripcion }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-icon class="mr-1" size="18">mdi-cash</v-icon>
+              <strong>Salario:</strong>
+              {{
+                vacanteSeleccionada.salarioOpc
+                  ? `S/. ${vacanteSeleccionada.salarioOpc}`
+                  : "No especificado"
+              }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-icon class="mr-1" size="18">mdi-check-circle</v-icon>
+              <strong>Estado:</strong> {{ vacanteSeleccionada.estado }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-icon class="mr-1" size="18">mdi-calendar</v-icon>
+              <strong>Publicado:</strong>
+              {{ formatDate(vacanteSeleccionada.fechaPublic) }}
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-icon class="mr-1" size="18">mdi-calendar-alert</v-icon>
+              <strong>Vence:</strong>
+              {{ formatDate(vacanteSeleccionada.fechaVenc) }}
+            </v-col>
+          </v-row>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="grey" variant="text" @click="dialog = false">
-            Cancelar
-          </v-btn>
-          <v-btn
-            color="primary"
-            :loading="isSubmitting"
-            :disabled="isSubmitting"
-            variant="elevated"
-            @click="submitPostulacion"
-          >
-            Enviar
-          </v-btn>
-        </v-card-actions>
+
+        <v-divider class="mx-4 my-2" />
+
+        <!-- Formulario de postulación -->
+        <v-form ref="formRef" v-model="formValid">
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="postulacionForm.telefonoOpc"
+                  label="Teléfono opcional"
+                  placeholder="Ej. 987654321"
+                  prepend-inner-icon="mdi-phone"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-textarea
+                  v-model="postulacionForm.comentarioOpc"
+                  label="Comentario opcional"
+                  rows="3"
+                  auto-grow
+                  prepend-inner-icon="mdi-comment-text"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-file-input
+                  v-model="postulacionForm.cvFile"
+                  label="Subir CV"
+                  accept=".pdf,.doc,.docx"
+                  show-size
+                  prepend-icon="mdi-upload"
+                  :rules="[
+                    (v) => !!v || 'Se debe cargar el CV',
+                    (v) =>
+                      !v ||
+                      v.size <= 2 * 1024 * 1024 ||
+                      'El archivo no debe superar los 2MB',
+                  ]"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <!-- Acciones -->
+          <v-card-actions class="px-4 pb-4">
+            <v-spacer />
+            <v-btn color="grey" variant="text" @click="dialog = false">
+              <v-icon left>mdi-close</v-icon>
+              Cancelar
+            </v-btn>
+            <v-btn
+              color="primary"
+              :loading="isSubmitting"
+              :disabled="isSubmitting"
+              variant="elevated"
+              @click="submitPostulacion"
+            >
+              <v-icon left>mdi-send</v-icon>
+              Enviar
+            </v-btn>
+          </v-card-actions>
+
+          <AppMessage
+            v-if="message"
+            :message="message"
+            :type="messageType"
+            @closed="message = ''"
+          />
+        </v-form>
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogDetalle" max-width="600px" persistent>
@@ -97,12 +176,34 @@
         sm="6"
         md="4"
       >
-        <v-card class="elevation-2">
-          <v-card-title class="text-h6">{{ vacante.titulo }}</v-card-title>
-          <v-card-subtitle>{{ vacante.ubicacion }}</v-card-subtitle>
-          <v-card-text>
-            <div><strong>Descripción:</strong> {{ vacante.descripcion }}</div>
-            <div>
+        <v-card class="elevation-4 rounded-lg" hover>
+          <v-card-title class="text-h6 bg-primary text-white">
+            {{ vacante.titulo }}
+          </v-card-title>
+
+          <v-card-subtitle class="px-4 pt-2 text-subtitle-2 text-grey-darken-1">
+            <v-icon size="18" class="mr-1">mdi-map-marker</v-icon>
+            {{ vacante.ubicacion }}
+          </v-card-subtitle>
+
+          <v-divider class="mx-4 my-2" />
+
+          <v-card-text class="px-4">
+            <v-tooltip bottom>
+              <template #activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="text-truncate"
+                  style="max-width: 100%; font-size: 14px"
+                >
+                  <strong>Descripción:</strong> {{ vacante.descripcion }}
+                </div>
+              </template>
+              <span>{{ vacante.descripcion }}</span>
+            </v-tooltip>
+
+            <div class="mt-2">
+              <v-icon size="18" class="mr-1">mdi-cash</v-icon>
               <strong>Salario:</strong>
               {{
                 vacante.salarioOpc
@@ -110,29 +211,43 @@
                   : "No especificado"
               }}
             </div>
-            <div>
+
+            <div class="mt-1">
+              <v-icon size="18" class="mr-1">mdi-calendar</v-icon>
               <strong>Publicado:</strong> {{ formatDate(vacante.fechaPublic) }}
             </div>
-            <div>
+
+            <div class="mt-1">
+              <v-icon size="18" class="mr-1">mdi-calendar-alert</v-icon>
               <strong>Vence:</strong> {{ formatDate(vacante.fechaVenc) }}
             </div>
-            <div><strong>Estado:</strong> {{ vacante.estado }}</div>
+
+            <div class="mt-1">
+              <v-icon size="18" class="mr-1">mdi-check-circle</v-icon>
+              <strong>Estado:</strong> {{ vacante.estado }}
+            </div>
           </v-card-text>
-          <v-card-actions>
+
+          <v-divider class="mx-4 my-2" />
+
+          <v-card-actions class="px-4 pb-4">
+            <v-spacer />
             <v-btn
               color="primary"
-              variant="outlined"
+              variant="elevated"
               @click="openDialog(vacante.id)"
               v-if="!postulaciones.find((x) => x.idVacante === vacante.id)"
             >
+              <v-icon left>mdi-send</v-icon>
               Postular
             </v-btn>
             <v-btn
               color="success"
-              variant="outlined"
+              variant="elevated"
               @click="openDialogDetalle(vacante.id)"
               v-if="postulaciones.find((x) => x.idVacante === vacante.id)"
             >
+              <v-icon left>mdi-eye</v-icon>
               Ver Postulación
             </v-btn>
           </v-card-actions>
@@ -143,14 +258,6 @@
 </template>
 
 <script setup>
-import { definePage } from "vue-router/auto";
-definePage({
-  meta: {
-    requiresAuth: true,
-    roles: ["USER_POST"],
-  },
-});
-
 import { ref, reactive, onMounted } from "vue";
 import { useAuthStore } from "@/stores/authStore";
 import { getCurrentUser } from "@/services/userService";
@@ -160,16 +267,19 @@ import {
   getPostulacionesByUsuarioId,
   createPostulacionVisualiza,
 } from "@/services/postulanteService";
-import NavTop from "@/components/NavTop.vue";
-import AppMessage from "@/components/AppMessage.vue";
+import AppMessage from "@/components/shared/AppMessage.vue";
 
-const maxSizeMB = 2;
-const maxSizeBytes = maxSizeMB * 1024 * 1024;
+const maxSizeBytes = 2 * 1024 * 1024;
 
 const authStore = useAuthStore();
 
 const vacantes = ref([]);
 const postulaciones = ref([]);
+
+const formRef = ref(null);
+const formValid = ref(false);
+
+const vacanteSeleccionada = ref(null);
 
 const message = ref("");
 const messageType = ref("info");
@@ -243,75 +353,80 @@ onMounted(async () => {
   await loadDataPostulaciones();
 });
 
-const openDialog = async (vacante) => {
-  console.log(vacante);
+const openDialog = async (idVacante) => {
+  const item = vacantes.value.find((v) => v.id === idVacante);
+  vacanteSeleccionada.value = item;
+
   dialog.value = true;
-  postulacionForm.value = vacante;
+  postulacionForm.idVacante = idVacante;
 
   const payload = {
-    IdVacante: vacante,
+    IdVacante: idVacante,
     IdUsuario: authStore.userId,
   };
 
   const response = await createPostulacionVisualiza(payload);
 };
 
-const isSubmitting = ref(false);
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
+const isSubmitting = ref(false);
 const submitPostulacion = async () => {
   if (isSubmitting.value) return;
 
-  const file = postulacionForm.cvFile;
-
-  if (!postulacionForm.idVacante || !authStore.userId || !file) {
-    showMessage("Debe subir un archivo CV.", "error");
-    return;
-  }
-
-  if (file.size > maxSizeBytes) {
-    showMessage(`El archivo supera el límite de ${maxSizeMB}MB.`, "error");
+  const isValid = await formRef.value?.validate();
+  if (!isValid) {
+    showMessage("Por favor completa los campos requeridos.", "error");
     return;
   }
 
   isSubmitting.value = true;
-
-  const reader = new FileReader();
-
-  reader.onload = async () => {
-    const base64CV = reader.result.split(",")[1];
+  try {
+    const base64CV = await readFileAsBase64(postulacionForm.cvFile);
 
     const data = {
       IdVacante: postulacionForm.idVacante,
       IdUsuario: authStore.userId,
       TelefonoOpc: postulacionForm.telefonoOpc,
       ComentarioOpc: postulacionForm.comentarioOpc,
-      NombreCV: file.name,
+      NombreCV: postulacionForm.cvFile.name,
       Base64CV: base64CV,
     };
 
-    try {
-      const resp = await postulacionCreate(data);
-      if (!resp.isSuccess) {
-        showMessage(resp.message || "Error al postular.", "error");
-        return;
-      }
-      showMessage("Postulación exitosa.", "success");
-      dialog.value = false;
-      Object.assign(postulacionForm, {
-        telefonoOpc: "",
-        comentarioOpc: "",
-        cvFile: null,
-        idVacante: null,
-      });
-      await loadDataVacante();
-      await loadDataPostulaciones();
-    } catch (err) {
-      showMessage("Error al enviar la postulación.", "error");
-    } finally {
-      isSubmitting.value = false;
-    }
-  };
+    const resp = await postulacionCreate(data);
 
-  reader.readAsDataURL(file);
+    if (!resp.isSuccess) {
+      showMessage(resp.message || "Error al postular.", "error");
+      return;
+    }
+
+    showMessage("Postulación exitosa.", "success");
+    dialog.value = false;
+    clearForm();
+
+    await loadDataVacante();
+    await loadDataPostulaciones();
+  } catch (err) {
+    console.log(err);
+    showMessage("Error al enviar la postulación.", "error");
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+const clearForm = () => {
+  Object.assign(postulacionForm, {
+    telefonoOpc: "",
+    comentarioOpc: "",
+    cvFile: null,
+    idVacante: null,
+  });
 };
 </script>

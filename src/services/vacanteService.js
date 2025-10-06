@@ -2,12 +2,10 @@ import axios from "axios";
 import { API_BASE_URL } from "../config/apiConfig";
 import { useAuthStore } from "../stores/authStore";
 
-// 🔧 Configuración base de Axios
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// 🔐 Interceptor para agregar el token JWT
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
   const token = authStore.token;
@@ -19,7 +17,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ⚠️ Manejo de errores mejorado
 const handleError = (error) => {
   if (error.response?.data?.message) {
     return {
@@ -73,18 +70,27 @@ export const createVacante = async (vacanteData) => {
   }
 };
 
-export const updateVacante = async (id, vacanteData) => {
+export const updateVacante = async (vacanteData) => {
   try {
-    const response = await api.put(`/vacante/update/${id}`, vacanteData);
+    const response = await api.put(`/vacante/update`, vacanteData);
     return response.data;
   } catch (error) {
     return handleError(error);
   }
 };
 
-export const disableVacante = async (id, vacanteData) => {
+export const expireVacante = async (vacanteData) => {
   try {
-    const response = await api.delete(`/vacante/disable/${id}`, {
+    const response = await api.put(`/vacante/expire`, vacanteData);
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const disableVacante = async (vacanteData) => {
+  try {
+    const response = await api.delete(`/vacante/disable`, {
       data: vacanteData,
     });
     return response.data;

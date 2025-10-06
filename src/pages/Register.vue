@@ -8,7 +8,7 @@
             <v-form @submit.prevent="handleRegister">
               <v-text-field
                 v-model="form.username"
-                label="Correo"
+                label="Usuario"
                 prepend-inner-icon="mdi-email"
                 outlined
                 dense
@@ -44,13 +44,6 @@
                 outlined
                 dense
               />
-              <v-text-field
-                v-model="form.telefono"
-                label="Teléfono"
-                prepend-inner-icon="mdi-phone"
-                outlined
-                dense
-              />
               <v-btn type="submit" color="primary" block class="mt-4">
                 <v-icon left>mdi-account-plus</v-icon>
                 Registrarse
@@ -80,7 +73,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import AppMessage from "@/components/AppMessage.vue";
+import AppMessage from "@/components/shared/AppMessage.vue";
 import { registerUser, loginUser } from "@/services/authService";
 
 import { getCurrentUser } from "@/services/userService";
@@ -95,7 +88,6 @@ const form = ref({
   paterno: "",
   materno: "",
   nombre: "",
-  telefono: "",
 });
 
 const message = ref("");

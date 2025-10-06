@@ -1,4 +1,5 @@
 <template>
+  <NavTopPostulante />
   <v-main>
     <router-view />
   </v-main>
@@ -6,5 +7,5 @@
 </template>
 
 <script setup>
-console.log("Se montó el layout DEFAULT");
+//
 </script>

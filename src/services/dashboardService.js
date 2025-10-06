@@ -6,6 +6,17 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
+api.interceptors.request.use((config) => {
+  const authStore = useAuthStore();
+  const token = authStore.token;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 const handleError = (error) => {
   if (error.response?.data?.message) {
     return {
@@ -32,19 +43,27 @@ const handleError = (error) => {
   };
 };
 
-export const loginUser = async (username, password) => {
+export const getDashboardVacanteAll = async () => {
   try {
-    const response = await api.post("/auth/login", { username, password });
+    const response = await api.get("/dashboard/vacante/all");
     return response.data;
   } catch (error) {
-    console.log(error);
     return handleError(error);
   }
 };
 
-export const registerUser = async (userData) => {
+export const getTopPostulacionAll = async () => {
   try {
-    const response = await api.post("/auth/register", userData);
+    const response = await api.get("/dashboard/toppostulacion/all");
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const getTopVisualizacionAll = async () => {
+  try {
+    const response = await api.get("/dashboard/topvisualizacion/all");
     return response.data;
   } catch (error) {
     return handleError(error);

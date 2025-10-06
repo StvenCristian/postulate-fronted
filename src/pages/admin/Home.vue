@@ -1,126 +1,78 @@
+<route lang="yaml">
+meta:
+  layout: admin
+  requiresAuth: true
+  roles:
+    - ADMIN
+</route>
+
 <template>
   <v-container>
-    <NavTop />
-
-    <v-dialog v-model="dialog" max-width="600">
-      <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span>{{
-            vacanteSelect ? "Actualizar Vacante" : "Registrar Vacante"
-          }}</span>
-          <v-btn icon @click="closeForm">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-card-text>
-          <VacanteForm :vacante="vacanteSelect" @submitted="closeForm" />
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="dialogDisable" max-width="600">
-      <AppMessage
-        v-if="message"
-        :message="message"
-        :type="messageType"
-        @closed="message = ''"
-      />
-      <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span>Eliminar registro</span>
-          <v-btn icon @click="closeDialogDisable">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-card-text> ¿Seguro de eliminar la vacante? </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="error" @click="confirmDisable">Eliminar</v-btn>
-          <v-btn color="grey" @click="closeDialogDisable">Cancelar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-card class="mb-6 pa-4">
-      <v-card-title class="text-h5">
-        Bienvenido, {{ authStore.username }}
-      </v-card-title>
-    </v-card>
-
-    <h2 class="text-center">Listado de vacantes disponibles</h2>
-    <v-btn variant="outlined" color="#5865f2" class="mb-6" @click="openForm">
-      <v-icon>mdi-plus</v-icon>
-      Agregar
-    </v-btn>
-
-    <!-- ✅ Mensaje general -->
     <AppMessage
       v-if="message"
       :message="message"
       :type="messageType"
       @closed="message = ''"
     />
+    <v-card class="mb-6 pa-4">
+      <v-card-title class="text-h5">
+        Bienvenido, {{ authStore.username }}
+      </v-card-title>
+    </v-card>
+    <h2 class="text-center">DASHBOARD PRINCIPAL</h2>
 
-    <v-data-table
-      :headers="headers"
-      :items="vacantes"
-      class="elevation-1"
-      :items-per-page="5"
-    >
-      <template v-slot:item.salarioOpc="{ item }">
-        {{ item.salarioOpc ? `S/. ${item.salarioOpc}` : "No especificado" }}
-      </template>
-      <template v-slot:item.fechaPublic="{ item }">
-        {{ formatDate(item.fechaPublic) }}
-      </template>
-      <template v-slot:item.fechaVenc="{ item }">
-        {{ formatDate(item.fechaVenc) }}
-      </template>
-      <template v-slot:item.actionUpdate="{ item }">
-        <v-btn icon color="primary" @click="editVacante(item)">
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-      </template>
-      <template v-slot:item.actionDelete="{ item }">
-        <v-btn icon color="error" @click="deleteVacante(item)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
-      </template>
-
-      <template v-slot:item.actionPostulaciones="{ item }">
-        <v-btn icon color="success" @click="verPostulaciones(item)">
-          <v-icon>mdi-account-group</v-icon>
-        </v-btn>
-      </template>
-    </v-data-table>
+    <v-divider :thickness="4"></v-divider>
+    <v-row>
+      <v-col cols="12" md="4">
+        <PieChart
+          v-if="chartDashboardVacante"
+          :data="chartDashboardVacante.data"
+          :options="chartDashboardVacante.options"
+        />
+      </v-col>
+      <v-col cols="12" md="4">
+        <BarChart
+          v-if="chartDashboardPostulaciones"
+          :data="chartDashboardPostulaciones.data"
+          :options="chartDashboardPostulaciones.options"
+        />
+      </v-col>
+      <v-col cols="12" md="4">
+        <BarChart
+          v-if="chartDashboardVisualizaciones"
+          :data="chartDashboardVisualizaciones.data"
+          :options="chartDashboardVisualizaciones.options"
+        />
+      </v-col>
+    </v-row>
+    <v-row class="my-4" justify="center">
+      <v-btn color="primary" @click="goToVacantes">
+        Ir al Maestro de Vacantes
+      </v-btn>
+    </v-row>
   </v-container>
 </template>
 
 <script setup>
-import { definePage } from "vue-router/auto";
-
-definePage({
-  meta: {
-    requiresAuth: true,
-    roles: ["ADMIN"],
-  },
-});
-
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/authStore";
 import { getCurrentUser } from "@/services/userService";
-import { getAllVacantes, disableVacante } from "@/services/vacanteService";
-import NavTop from "@/components/NavTop.vue";
-import AppMessage from "@/components/AppMessage.vue";
-import VacanteForm from "@/components/VacanteForm.vue";
-
+import {
+  getDashboardVacanteAll,
+  getTopPostulacionAll,
+  getTopVisualizacionAll,
+} from "@/services/dashboardService";
+import AppMessage from "@/components/shared/AppMessage.vue";
 import { useRouter } from "vue-router";
+import BarChart from "@/components/shared/BarChart.vue";
 
 const router = useRouter();
-
 const authStore = useAuthStore();
 
-const vacantes = ref([]);
+const dashboardVacante = ref([]);
+const dashboardPostulaciones = ref([]);
+const dashboardVisualizaciones = ref([]);
+
 const message = ref("");
 const messageType = ref("info");
 
@@ -134,32 +86,154 @@ const showMessage = (msg, type = "info", duration = 3000) => {
   }, duration);
 };
 
-const headers = [
-  { title: "Título", key: "titulo" },
-  { title: "Descripción", key: "descripcion" },
-  { title: "Ubicación", key: "ubicacion" },
-  { title: "Salario", key: "salarioOpc" },
-  { title: "Fecha Publicación", key: "fechaPublic" },
-  { title: "Fecha Vencimiento", key: "fechaVenc" },
-  { title: "Estado", key: "estado" },
-  { title: "Actualizar", key: "actionUpdate", sortable: false },
-  { title: "Eliminar", key: "actionDelete", sortable: false },
-  { title: "Postulaciones", key: "actionPostulaciones", sortable: false },
-];
-
-const formatDate = (dateStr) => {
-  if (!dateStr) return "No disponible";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("es-PE");
-};
-
-const loadDataVacante = async () => {
-  const resp = await getAllVacantes();
+const loadDashboardVacante = async () => {
+  const resp = await getDashboardVacanteAll();
   if (!resp?.isSuccess) {
     showMessage(resp?.message || "Error desconocido.", "error");
     return;
   }
-  vacantes.value = resp.data;
+  dashboardVacante.value = resp.data;
+};
+
+const loadDashboardPostulacion = async () => {
+  const resp = await getTopPostulacionAll();
+  if (!resp?.isSuccess) {
+    showMessage(resp?.message || "Error desconocido.", "error");
+    return;
+  }
+  dashboardPostulaciones.value = resp.data;
+};
+
+const loadDashboardVisualizacion = async () => {
+  const resp = await getTopVisualizacionAll();
+  if (!resp?.isSuccess) {
+    showMessage(resp?.message || "Error desconocido.", "error");
+    return;
+  }
+  dashboardVisualizaciones.value = resp.data;
+};
+
+const chartDashboardVacante = computed(() => {
+  if (
+    !dashboardVacante.value.label ||
+    !dashboardVacante.value.dataSet ||
+    !dashboardVacante.value.dataSet[0]?.data
+  ) {
+    return null;
+  }
+
+  return {
+    data: {
+      labels: dashboardVacante.value.label,
+      datasets: [
+        {
+          label: "Vacantes",
+          backgroundColor: ["#4caf50", "#f44336"],
+          data: dashboardVacante.value.dataSet[0].data,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+        title: {
+          display: true,
+          text: "ESTADO DE VACANTES",
+        },
+      },
+    },
+  };
+});
+
+const chartDashboardPostulaciones = computed(() => {
+  if (
+    !dashboardPostulaciones.value.label ||
+    !dashboardPostulaciones.value.dataSet ||
+    !dashboardPostulaciones.value.dataSet[0]?.data
+  ) {
+    return null;
+  }
+
+  return {
+    data: {
+      labels: dashboardPostulaciones.value.label,
+      datasets: [
+        {
+          label: "Postulaciones",
+          backgroundColor: [
+            "#4caf50",
+            "#f44336",
+            "#2196f3",
+            "#ff9800",
+            "#9c27b0",
+          ],
+          data: dashboardPostulaciones.value.dataSet[0].data,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "TOP POSTULACIONES POR VACANTE",
+        },
+      },
+    },
+  };
+});
+
+const chartDashboardVisualizaciones = computed(() => {
+  if (
+    !dashboardVisualizaciones.value.label ||
+    !dashboardVisualizaciones.value.dataSet ||
+    !dashboardVisualizaciones.value.dataSet[0]?.data
+  ) {
+    return null;
+  }
+
+  return {
+    data: {
+      labels: dashboardVisualizaciones.value.label,
+      datasets: [
+        {
+          label: "Visualizaciones",
+          backgroundColor: ["#ff9800"],
+          data: dashboardVisualizaciones.value.dataSet[0].data,
+        },
+        {
+          label: "Postulaciones",
+          backgroundColor: ["rgba(33, 150, 243, 0.4)"],
+          borderColor: ["#2196f3"],
+          borderWidth: 2,
+          data: dashboardVisualizaciones.value.dataSet[1].data,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "TOP VISUALIZACIONES POR VACANTE / POSTULACIONES REALES",
+        },
+      },
+    },
+  };
+});
+const goToVacantes = () => {
+  router.push("vacantes"); // Asegúrate que esta ruta exista en tu router
 };
 
 onMounted(async () => {
@@ -167,67 +241,9 @@ onMounted(async () => {
   authStore.username = res.data.username;
   authStore.roles = res.data.roles;
   authStore.userId = res.data.id;
-  await loadDataVacante();
+
+  await loadDashboardVacante();
+  await loadDashboardPostulacion();
+  await loadDashboardVisualizacion();
 });
-
-const dialog = ref(false);
-const dialogDisable = ref(false);
-const vacanteSelect = ref(null);
-
-const openForm = () => {
-  vacanteSelect.value = null;
-  dialog.value = true;
-};
-
-const closeForm = () => {
-  dialog.value = false;
-  vacanteSelect.value = null;
-  loadDataVacante();
-};
-
-const editVacante = (vacante) => {
-  vacanteSelect.value = { ...vacante };
-  dialog.value = true;
-};
-
-const deleteVacante = (vacante) => {
-  vacanteSelect.value = { ...vacante };
-  dialogDisable.value = true;
-};
-
-const closeDialogDisable = () => {
-  dialogDisable.value = false;
-  loadDataVacante();
-};
-
-const confirmDisable = async () => {
-  if (!vacanteSelect.value?.id) return;
-
-  try {
-    const resp = await disableVacante(
-      vacanteSelect.value.id,
-      vacanteSelect.value
-    );
-    if (!resp?.isSuccess) {
-      showMessage(resp?.message || "Error al eliminar la vacante", "error");
-      return;
-    }
-
-    showMessage("Vacante eliminada correctamente.", "success");
-    dialogDisable.value = false;
-    vacanteSelect.value = null;
-    await loadDataVacante();
-  } catch (err) {
-    showMessage(
-      err.response?.data?.message || "Error al eliminar la vacante",
-      "error"
-    );
-  }
-};
-const verPostulaciones = (vacante) => {
-  router.push({
-    path: "/admin/postulaciones",
-    query: { id: vacante.id },
-  });
-};
 </script>

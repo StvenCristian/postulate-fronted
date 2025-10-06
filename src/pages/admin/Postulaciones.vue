@@ -1,9 +1,13 @@
+<route lang="yaml">
+meta:
+  layout: admin
+  requiresAuth: true
+  roles:
+    - ADMIN
+</route>
 <template>
   <v-container>
-    <NavTop />
-
-    <!-- 🔙 Botón para volver al Home -->
-    <v-btn color="error" class="mb-4" @click="volverAlHome">
+    <v-btn color="error" class="mb-4" @click="backPage">
       <v-icon start>mdi-arrow-left</v-icon>
       Volver
     </v-btn>
@@ -53,7 +57,6 @@ import {
   getPostulacionesByVacanteId,
   getCVByPostulacionId,
 } from "@/services/vacanteService";
-import NavTop from "@/components/NavTop.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -68,17 +71,17 @@ const headers = [
   { title: "Descargar CV", key: "actionDownload", sortable: false },
   { title: "Comentario", key: "comentarioOpc" },
   { title: "Teléfono", key: "telefonoOpc" },
-  { title: "Fecha de Postulación", key: "fechaPostulacion" },
+  { title: "Fecha Postulación", key: "fechaPostulacion" },
 ];
 
 const formatDate = (dateStr) => {
-  if (!dateStr) return "No disponible";
+  if (!dateStr) return "";
   const date = new Date(dateStr);
   return date.toLocaleDateString("es-PE");
 };
 
-const volverAlHome = () => {
-  router.push("/admin/home");
+const backPage = () => {
+  router.push("/admin/vacantes");
 };
 
 const downloadCV = async (postulacion) => {

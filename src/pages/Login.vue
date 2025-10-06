@@ -67,7 +67,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { loginUser } from "@/services/authService";
 import { getCurrentUser } from "@/services/userService";
-import AppMessage from "@/components/AppMessage.vue";
+import AppMessage from "@/components/shared/AppMessage.vue";
 
 const username = ref("");
 const password = ref("");

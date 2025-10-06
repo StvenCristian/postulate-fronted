@@ -8,11 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppFooter: typeof import('./src/components/AppFooter.vue')['default']
-    AppMessage: typeof import('./src/components/AppMessage.vue')['default']
-    NavTop: typeof import('./src/components/NavTop.vue')['default']
+    AppFooter: typeof import('./src/components/shared/AppFooter.vue')['default']
+    AppMessage: typeof import('./src/components/shared/AppMessage.vue')['default']
+    BarChart: typeof import('./src/components/shared/BarChart.vue')['default']
+    NavTopAdmin: typeof import('./src/components/admin/NavTopAdmin.vue')['default']
+    NavTopPostulante: typeof import('./src/components/postulante/NavTopPostulante.vue')['default']
+    PieChart: typeof import('./src/components/shared/PieChart.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    VacanteForm: typeof import('./src/components/VacanteForm.vue')['default']
+    VacanteForm: typeof import('./src/components/admin/VacanteForm.vue')['default']
   }
 }

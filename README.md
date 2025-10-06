@@ -4,6 +4,10 @@ Este es el frontend del sistema **Postulate**, una plataforma para la gestión d
 Está desarrollada con **Vue.js** y **Vuetify**, ofreciendo una interfaz moderna, responsiva y fácil de usar.  
 El sistema permite a los usuarios registrarse, postular a vacantes, y a los administradores gestionar ofertas laborales de forma eficiente.
 
+¡Explora el demo en línea!
+Puedes probar el sistema en funcionamiento accediendo al siguiente enlace:
+🔗 https://postulate-demo.web.app
+
 ## 🚀 Tecnologías utilizadas
 
 Este proyecto está construido con las siguientes tecnologías modernas:
